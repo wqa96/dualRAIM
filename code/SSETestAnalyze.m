@@ -65,7 +65,7 @@ sat = [satE, satN, satU];
 %真实伪距
 r = sqrt(sum((sat - pos_r).^2, 2));
 %% Monte Carlo 仿真
-%所有大于等于7颗星的组合
+%所有大于等于5颗星的组合
 satnum = 12;
 satInd = logical(dec2bin(1:2^satnum-1)-'0');
 satnum = sum(satInd, 2);
