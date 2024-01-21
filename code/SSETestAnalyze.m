@@ -359,13 +359,35 @@ for nn = 6:6
     flag = satnum == nn;
     xtmp = Sii(flag, :);
     ytmp = missDet1(flag, :);
-    figure; loglog(1./xtmp(:), ytmp(:), '.');
-    hold on; loglog(1./Sii0, missRates1(:, nn-5)); hold off;
+%     figure; loglog(1./xtmp(:), ytmp(:), '.');
+%     hold on; loglog(1./Sii0, missRates1(:, nn-5)); hold off;
+    figure; loglog(xtmp(:), ytmp(:), '.');
+    hold on; loglog(Sii0, missRates1(:, nn-5)); hold off;
+    grid on;
     ylim([1e-3, 1]);
-    xlabel('$1+g_i^TH_ig_i$', 'Interpreter', 'latex');
+%     xlabel('$1+g_i^TH_ig_i$', 'Interpreter', 'latex');
+    xlabel('$1/(1+g_i^TH_ig_i)$', 'Interpreter', 'latex');
     ylabel('Miss detection rate');
     legend('simulation result', 'ideal');
 end
+%%
+flag = satnum == 6;
+xtmp = Sii(flag, :);
+ytmp = missDet1(flag, :);
+[Sii0_min, Sii0_ind] = min(xtmp(:));
+Sii0_ind0 = mod(Sii0_ind, size(xtmp, 1));
+Sii0_ind1 = ceil(Sii0_ind/size(xtmp, 1));
+Sii0_flagInd = find(flag);
+Sii0_satInd = satInd(Sii0_flagInd(Sii0_ind0), :);
+Sii0_r = r(Sii0_satInd);
+Sii0_sat = sat(Sii0_satInd, :);
+Sii0_G = -(Sii0_sat - pos_r)./Sii0_r;
+Sii0_G(:, 4) = 1;
+Sii0_H = inv(Sii0_G'*Sii0_G);
+Sii0_Az = acos(-Sii0_G(:, 2)./sqrt(Sii0_G(:, 1).^2 + Sii0_G(:, 2).^2))/pi*180;
+Sii0_Az(Sii0_G(:, 1)>0) = Sii0_Az(Sii0_G(:, 1)>0)+180;
+Sii0_El = atan2(-Sii0_G(:, 3), sqrt(Sii0_G(:, 1).^2 + Sii0_G(:, 2).^2))/pi*180;
+skyPlot0(Sii0_Az, Sii0_El, 1:6);
 %% 虚警概率为0.05，漏检概率与Qij的关系
 alarmRate = 0.05;
 TH = zeros(1, 17); %不同自由度的阈值
@@ -392,7 +414,7 @@ for n = 1:15
     delta = 20*sqrt(varBij2) * dx;
     missRates2(:, n) = sum(cdf('Chisquare', th, n) .* px .* delta, 2);
 end
-for nn = 7:12
+for nn = 7:7
     flag = satnum == nn;
     xtmp = (Sij(flag, :, 1) + Sij(flag, :, 2) - 2*Sij(flag, :, 3))./(Sij(flag, :, 1).*Sij(flag, :, 2)-Sij(flag, :, 3).^2);
     ytmp = missDet2(flag, :);
@@ -403,4 +425,24 @@ for nn = 7:12
     ylabel('Miss detection rate');
     legend('simulation result', 'ideal');
 end
-
+%%
+flag = satnum == 7;
+xtmp = (Sij(flag, :, 1) + Sij(flag, :, 2) - 2*Sij(flag, :, 3))./(Sij(flag, :, 1).*Sij(flag, :, 2)-Sij(flag, :, 3).^2);
+ytmp = missDet2(flag, :);
+pijtmp = Sij(flag, :, 3)./sqrt(Sij(flag, :, 1).*Sij(flag, :, 2));
+[pij_min, pij_ind] = min(abs(pijtmp(:)));
+pij_ind0 = mod(pij_ind, size(pijtmp, 1));
+pij_ind1 = ceil(pij_ind/size(pijtmp, 1));
+pij_flagInd = find(flag);
+pij_satInd = satInd(pij_flagInd(pij_ind0), :);
+flags = nchoosek(1:7, 2);
+pij_satid = flags(pij_ind1, :);
+pij_r = r(pij_satInd);
+pij_sat = sat(pij_satInd, :);
+pij_G = -(pij_sat - pos_r)./pij_r;
+pij_G(:, 4) = 1;
+pij_H = inv(pij_G'*pij_G);
+pij_Az = acos(-pij_G(:, 2)./sqrt(pij_G(:, 1).^2 + pij_G(:, 2).^2))/pi*180;
+pij_Az(pij_G(:, 1)>0) = pij_Az(pij_G(:, 1)>0)+180;
+pij_El = atan2(-pij_G(:, 3), sqrt(pij_G(:, 1).^2 + pij_G(:, 2).^2))/pi*180;
+skyPlot0(pij_Az, pij_El, 1:7);
