@@ -64,6 +64,9 @@ sat2ref = [satdata.x(satind) - refpX, ...
 sat = [satE, satN, satU];
 %真实伪距
 r = sqrt(sum((sat - pos_r).^2, 2)); %satellites' geometric distance
+%地球旋转修正add earth rotation error
+earth_rot = 7.292115e-5 * (satpos(1, :) * pos_r(2) - satpos(2, :) * pos_r(1))' / c;
+r = r + earth_rot;
 %% Monte Carlo 仿真
 %所有大于等于5颗星的组合all combinations of satellites (the satellite number no less than 5)
 satnum = 12;
